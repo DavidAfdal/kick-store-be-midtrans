@@ -81,7 +81,7 @@ const CreateShoe = async (req, res, next) => {
     res.json(apiRespon.StatusCreated('Succes Created Shoe'));
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ msg: 'Internal Server Error', error: error });
+    res.status(500).json(apiRespon.StatusIntervalServerError('Something wrong in server', error));
   }
 };
 

@@ -54,10 +54,7 @@ const CheckoutProduct = async (req, res, next) => {
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      code: 500,
-      status: 'Internal Server Error',
-    });
+    return res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 
   let data;
@@ -65,10 +62,7 @@ const CheckoutProduct = async (req, res, next) => {
     data = await CoreApi.cardToken(cardParameter);
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      code: 500,
-      status: 'Internal Server Error',
-    });
+    return res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 
   try {
@@ -95,10 +89,7 @@ const CheckoutProduct = async (req, res, next) => {
     return res.json(apiRespon.StatusCreated('Checkout Berhasil'));
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      code: 500,
-      status: 'Internal Server Error',
-    });
+    return res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 };
 
@@ -121,10 +112,7 @@ const GetHistoryOrder = async (req, res, next) => {
     res.json(apiRespon.StatusGetData('Succes Get Data', orderHistory));
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      code: 500,
-      status: 'Internal Server Error',
-    });
+    return res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 };
 

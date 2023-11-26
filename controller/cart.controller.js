@@ -31,11 +31,7 @@ const AddItemToCart = async (req, res, next) => {
     return res.json(apiRespon.StatusNoContent('Succes Add to Cart'));
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      code: 500,
-      status: 'Internal Server Error',
-      errMsg: error,
-    });
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 };
 
@@ -63,11 +59,7 @@ const GetItemsInCart = async (req, res, next) => {
     res.json(apiRespon.StatusGetData('Sucess Get Items In Cart', cartItems));
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      code: 500,
-      status: 'Internal Server Error',
-      errMsg: error,
-    });
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 };
 
@@ -86,11 +78,7 @@ const DeleteItemCart = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      code: 500,
-      status: 'Internal Server Error',
-      errMsg: error,
-    });
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 };
 

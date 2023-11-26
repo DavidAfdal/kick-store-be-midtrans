@@ -5,6 +5,6 @@ const routes = express.Router();
 
 routes.post('/login', authController.Login);
 routes.post('/register', authController.Register);
-routes.post('/forgetPassword', authController.ForgetPasswords);
+routes.post('/forgetPassword', authController.ForgetPassword);
 
 export default routes;

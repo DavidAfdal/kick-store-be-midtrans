@@ -26,13 +26,42 @@ const StatusNoContent = (message) => {
   return response;
 };
 
-const StatusNotFound = (errMessage, error) => {
+const StatusNotFound = (message, error) => {
   const response = {
     code: 404,
     status: 'Not Found',
-    message: errMessage,
+    message: message,
     error,
   };
+  return response;
+};
+
+const StatusIntervalServerError = (error, message = 'Something went wrong in server') => {
+  const response = {
+    code: 500,
+    status: 'Interval Server Error',
+    message: message,
+    error,
+  };
+  return response;
+};
+
+const StatusCostumRespon = (message, code = 500, status = 'Interval Server Error', error = '') => {
+  let response;
+  if (error !== '') {
+    response = {
+      code: code,
+      status: status,
+      message,
+      error,
+    };
+  } else {
+    response = {
+      code: code,
+      status: status,
+      message,
+    };
+  }
   return response;
 };
 
@@ -41,4 +70,6 @@ export default {
   StatusCreated,
   StatusNoContent,
   StatusNotFound,
+  StatusIntervalServerError,
+  StatusCostumRespon,
 };

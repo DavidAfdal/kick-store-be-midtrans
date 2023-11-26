@@ -1,4 +1,5 @@
 import Color from '../models/color.model.js';
+import apiRespon from '../utils/apiRespon.js';
 
 const CreateColor = async (req, res, next) => {
   const { name, color } = req.body;
@@ -7,7 +8,7 @@ const CreateColor = async (req, res, next) => {
     res.json(newColor);
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json(apiRespon.StatusIntervalServerError(error, `Can't create color because error in server`));
   }
 };
 
@@ -17,7 +18,7 @@ const GetAllColor = async (req, res) => {
     res.json({ data: newColor });
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 };
 
