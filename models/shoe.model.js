@@ -3,7 +3,7 @@ import { DataTypes } from 'sequelize';
 import Color from './color.model.js';
 import Size from './size.model.js';
 
-const Shoe = sequelize.define('Shoe', {
+const Shoe = sequelize.define('shoe', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -30,10 +30,15 @@ const Shoe = sequelize.define('Shoe', {
   },
 });
 
-Shoe.belongsToMany(Color, { through: 'SHOECOLOR' });
-Shoe.hasMany(Size);
-Size.belongsTo(Shoe);
-
+Shoe.belongsToMany(Color, { through: 'shoe_color' });
+Shoe.hasMany(Size, {
+  as: 'sizes',
+  foreignKey: 'shoe_id',
+  onDelete: 'cascade',
+});
+Size.belongsTo(Shoe, {
+  foreignKey: 'shoe_id',
+});
 (async () => {
   await sequelize.sync();
   // Code here

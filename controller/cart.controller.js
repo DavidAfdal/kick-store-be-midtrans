@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import Shoe from '../models/shoe.model.js';
 import Image from '../models/image.model.js';
 import apiRespon from '../utils/apiRespon.js';
+import sequelize from '../config/db.config.js';
 
 const AddItemToCart = async (req, res, next) => {
   const { userId } = req.user;
@@ -11,7 +12,7 @@ const AddItemToCart = async (req, res, next) => {
   try {
     const exitedCartItem = await Cart.findOne({
       where: {
-        [Op.and]: [{ ShoeId: shoeId }, { shoe_color: cart_color }, { shoe_size: cart_size }, { UserId: userId }],
+        [Op.and]: [{ shoe_id: shoeId }, { shoe_color: cart_color }, { shoe_size: cart_size }, { user_id: userId }],
       },
     });
 
@@ -19,8 +20,8 @@ const AddItemToCart = async (req, res, next) => {
       await Cart.update({ quantity: exitedCartItem.quantity + 1 }, { where: { id: exitedCartItem.id } });
     } else {
       await Cart.create({
-        ShoeId: shoeId,
-        UserId: userId,
+        shoe_id: shoeId,
+        user_id: userId,
         shoe_color: cart_color,
         shoe_size: cart_size,
         quantity: 1,
@@ -39,19 +40,22 @@ const GetItemsInCart = async (req, res, next) => {
   const { userId } = req.user;
   try {
     const cartItems = await Cart.findAll({
-      where: { UserId: userId },
-      attributes: { exclude: ['createdAt', 'updatedAt', 'UserId'] },
+      where: { user_id: userId },
+      attributes: { exclude: ['createdAt', 'updatedAt', 'user_id'] },
       include: [
         {
           model: Shoe,
-          attributes: ['name', 'category', 'type'],
-          include: {
-            model: Image,
-            attributes: ['url'],
-            where: {
-              type: 'THUMBNAIL',
-            },
-          },
+          attributes: [
+            'name',
+            'category',
+            'type',
+            [
+              sequelize.literal(`(
+            SELECT url FROM images as image  WHERE image.shoe_id = shoe.id AND image.type = 'THUMBNAIL'
+        )`),
+              'thumbImg',
+            ],
+          ],
         },
       ],
     });

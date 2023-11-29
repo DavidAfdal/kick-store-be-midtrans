@@ -2,7 +2,7 @@ import sequelize from '../config/db.config.js';
 import { DataTypes } from 'sequelize';
 import Shoe from './shoe.model.js';
 
-const OrderItems = sequelize.define('OrderItems', {
+const OrderItems = sequelize.define('orderItems', {
   shoe_color: {
     type: DataTypes.STRING,
   },
@@ -18,7 +18,14 @@ const OrderItems = sequelize.define('OrderItems', {
   },
 });
 
-OrderItems.belongsTo(Shoe);
-Shoe.hasMany(OrderItems);
+Shoe.hasMany(OrderItems, {
+  as: 'order_items',
+  foreignKey: 'shoe_id',
+  onDelete: 'cascade',
+});
+
+OrderItems.belongsTo(Shoe, {
+  foreignKey: 'shoe_id',
+});
 
 export default OrderItems;

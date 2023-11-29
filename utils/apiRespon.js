@@ -19,8 +19,8 @@ const StatusCreated = (message) => {
 
 const StatusNoContent = (message) => {
   const response = {
-    code: 204,
-    status: 'No Content',
+    code: 200,
+    status: 'Succes',
     message: message,
   };
   return response;

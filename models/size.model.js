@@ -1,7 +1,7 @@
 import sequelize from '../config/db.config.js';
 import { DataTypes } from 'sequelize';
 
-const Size = sequelize.define('Size', {
+const Size = sequelize.define('size', {
   size: {
     type: DataTypes.INTEGER,
   },

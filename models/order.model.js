@@ -3,7 +3,7 @@ import { DataTypes } from 'sequelize';
 import OrderItems from './orderItems.model.js';
 import User from './user.model.js';
 
-const Order = sequelize.define('Order', {
+const Order = sequelize.define('order', {
   id: {
     type: DataTypes.STRING,
     primaryKey: true,
@@ -20,9 +20,24 @@ const Order = sequelize.define('Order', {
   },
 });
 
-Order.hasMany(OrderItems);
-OrderItems.belongsTo(Order);
-User.hasMany(Order);
-Order.belongsTo(User);
+Order.hasMany(OrderItems, {
+  as: 'order_items',
+  foreignKey: 'order_id',
+  onDelete: 'cascade',
+});
+
+OrderItems.belongsTo(Order, {
+  foreignKey: 'order_id',
+});
+
+User.hasMany(Order, {
+  as: 'orders',
+  foreignKey: 'user_id',
+  onDelete: 'cascade',
+});
+
+Order.belongsTo(User, {
+  foreignKey: 'user_id',
+});
 
 export default Order;

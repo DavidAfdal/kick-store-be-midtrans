@@ -58,18 +58,31 @@ const Login = async (req, res, next) => {
   }
 };
 
-const ForgetPassword = async (req, res, next) => {
-  const { email, newPassword } = req.body;
+const ValidateEmail = async (req, res, next) => {
+  const { email } = req.body;
   try {
     const userCheck = await User.findOne({ where: { email: email } });
     if (!userCheck) {
       return res.status(404).json(apiRespon.StatusNotFound('user not exited', "can't found user by email address"));
     }
-    const hashPassword = await utils.HashPassword(newPassword);
+    res.cookie('emailValid', userCheck.id, { maxAge: 900000, httpOnly: true });
+    return res.status(200).json({ message: 'succes' });
+  } catch (error) {
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
+  }
+};
 
-    await User.update({ password: hashPassword }, { where: { id: userCheck.id } });
+const ForgetPassword = async (req, res, next) => {
+  const { password } = req.body;
+  const { userId } = req.check;
+  try {
+    const hashPassword = await utils.HashPassword(password);
 
-    res.status(204).json(apiRespon.StatusNoContent('Succes Update Password'));
+    await User.update({ password: hashPassword }, { where: { id: userId } });
+
+    res.clearCookie('emailValid');
+
+    res.status(200).json(apiRespon.StatusNoContent('Succes Update Password'));
   } catch (error) {
     res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
@@ -79,4 +92,5 @@ export default {
   Register,
   Login,
   ForgetPassword,
+  ValidateEmail,
 };

@@ -4,6 +4,7 @@ import Cart from '../models/cart.model.js';
 import Order from '../models/order.model.js';
 import OrderItems from '../models/orderItems.model.js';
 import Payment from '../models/payment.model.js';
+import Shoe from '../models/shoe.model.js';
 import apiRespon from '../utils/apiRespon.js';
 import utils from '../utils/utils.js';
 import * as dotenv from 'dotenv';
@@ -21,13 +22,14 @@ const CheckoutProduct = async (req, res, next) => {
     card_cvv: card_cvv,
     client_key: process.env.MIDTRANS_CLIENT_KEY,
   };
+
   let result;
   try {
-    const cartItems = await Cart.findAll({ where: { UserId: userId } });
+    const cartItems = await Cart.findAll({ where: { user_id: userId } });
 
     if (cartItems.length > 0) {
       result = await sequelize.transaction(async () => {
-        const userOrder = await Order.create({ UserId: userId, id: orderId, total_items, total_price });
+        const userOrder = await Order.create({ id: orderId, user_id: userId, total_price, total_items });
 
         const orderItems = cartItems.map((data) => {
           return {
@@ -35,14 +37,14 @@ const CheckoutProduct = async (req, res, next) => {
             shoe_size: data.shoe_size,
             quantity: data.quantity,
             price: data.price,
-            ShoeId: data.ShoeId,
-            OrderId: userOrder.id,
+            shoe_id: data.shoe_id,
+            order_id: userOrder.id,
           };
         });
 
         const dataOrder = await OrderItems.bulkCreate(orderItems);
 
-        await Cart.destroy({ where: { UserId: userId } });
+        await Cart.destroy({ where: { user_id: userId } });
 
         return {
           order: userOrder,
@@ -80,7 +82,7 @@ const CheckoutProduct = async (req, res, next) => {
     const chargeResponse = await CoreApi.charge(parameter);
 
     await Payment.create({
-      OrderId: result.order.id,
+      order_id: result.order.id,
       grossAmount: chargeResponse.gross_amount,
       paymentStatus: chargeResponse.transaction_status,
       paymentTime: chargeResponse.transaction_time,
@@ -98,14 +100,32 @@ const GetHistoryOrder = async (req, res, next) => {
   try {
     const orderHistory = await Order.findAll({
       where: {
-        UserId: userId,
+        user_id: userId,
       },
       include: [
         {
           model: OrderItems,
+          as: 'order_items',
+          include: [
+            {
+              model: Shoe,
+              attributes: [
+                'name',
+                'category',
+                'type',
+                [
+                  sequelize.literal(`(
+                SELECT url FROM images as image  WHERE image.shoe_id = order_items.shoe_id AND image.type = 'THUMBNAIL'
+            )`),
+                  'thumbImg',
+                ],
+              ],
+            },
+          ],
         },
         {
           model: Payment,
+          as: 'payment',
         },
       ],
     });

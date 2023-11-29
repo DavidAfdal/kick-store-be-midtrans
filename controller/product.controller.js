@@ -41,6 +41,16 @@ const PaginationShoes = async (req, res, next) => {
 
     const result = await Shoe.findAndCountAll({
       where: filterCriteria,
+      attributes: {
+        include: [
+          [
+            sequelize.literal(`(
+                    SELECT url FROM images as image  WHERE image.shoe_id = shoe.id AND image.type = 'THUMBNAIL'
+                )`),
+            'thumbImg',
+          ],
+        ],
+      },
       offset,
       limit,
     });
@@ -53,7 +63,7 @@ const PaginationShoes = async (req, res, next) => {
     });
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send(apiRespon.StatusIntervalServerError(error));
   }
 };
 
@@ -61,7 +71,7 @@ const CreateShoe = async (req, res, next) => {
   const { name, desc, price, discount, category, type, sizes, colors } = req.body;
   try {
     await sequelize.transaction(async () => {
-      const newShoe = await Shoe.create({ name, description: desc, category, type, price, diskon: discount });
+      const newShoe = await Shoe.create({ name: name.toUpperCase(), description: desc, category: category.toUpperCase(), type: type.toUpperCase(), price, diskon: discount });
 
       for (const data of sizes) {
         const { size, stock } = data;
@@ -69,7 +79,7 @@ const CreateShoe = async (req, res, next) => {
         await Size.create({
           size,
           stock,
-          ShoeId: newShoe.id,
+          shoe_id: newShoe.id,
         });
       }
 
@@ -102,10 +112,12 @@ const GetShoesById = async (req, res, next) => {
         },
         {
           model: Size,
+          as: 'sizes',
           attributes: ['id', 'size', 'stock'],
         },
         {
           model: Image,
+          as: 'images',
           attributes: ['url', 'type'],
         },
       ],
@@ -118,7 +130,7 @@ const GetShoesById = async (req, res, next) => {
     res.json(apiRespon.StatusGetData('succes get details shoe', shoe));
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ msg: 'Internal Server Error', error: error });
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 };
 
@@ -133,7 +145,7 @@ const AddImage = async (req, res, next) => {
       id: resultThumbnail.public_id,
       url: resultThumbnail.url,
       type: 'THUMBNAIL',
-      ShoeId: id,
+      shoe_id: id,
     });
 
     images.forEach(async (image) => {
@@ -141,7 +153,7 @@ const AddImage = async (req, res, next) => {
       await Image.create({
         id: resultImage.public_id,
         url: resultImage.url,
-        ShoeId: id,
+        shoe_id: id,
       });
     });
 
@@ -152,10 +164,30 @@ const AddImage = async (req, res, next) => {
   } catch (error) {
     console.log(process.env.CLOUD_API_KEY);
     console.log(error);
-    return res.status(500).json({
-      message: 'Intenet Server Error',
-      error: error,
+    return res.status(500).json(apiRespon.StatusIntervalServerError(error));
+  }
+};
+
+const RecomandShoes = async (req, res, next) => {
+  try {
+    const recomandedShoe = await Shoe.findAll({
+      attributes: {
+        include: [
+          [
+            sequelize.literal(`(
+                    SELECT url FROM images as image  WHERE image.shoe_id = shoe.id AND image.type = 'THUMBNAIL'
+                )`),
+            'thumbImg',
+          ],
+        ],
+      },
+      limit: 9,
+      order: [['createdAt', 'DESC']],
     });
+
+    res.json(apiRespon.StatusGetData('Succes Get data recomanded', recomandedShoe));
+  } catch (error) {
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 };
 
@@ -166,4 +198,5 @@ export default {
   DeleteShoe,
   GetShoesById,
   AddImage,
+  RecomandShoes,
 };

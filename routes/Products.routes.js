@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.get('/', productController.PaginationShoes);
 router.get('/color', colorController.GetAllColor);
+router.get('/recomand', productController.RecomandShoes);
 router.get('/:id', productController.GetShoesById);
 router.post('/', productController.CreateShoe);
 router.post('/color', colorController.CreateColor);
