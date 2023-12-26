@@ -96,7 +96,6 @@ const LoginWithGoogle = async (req, res, next) => {
    
    const userData = userResponse.data
     const exitedUser = await User.findOne({where : {email: userData.email}})
-    console.log(exitedUser.id)
 
     if(exitedUser) {
       const token = utils.GenerateAccessToken({ id: exitedUser.id, email: exitedUser.email });

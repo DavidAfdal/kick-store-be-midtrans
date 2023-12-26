@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import Shoe from '../models/shoe.model.js';
 import Size from '../models/size.model.js';
 import Color from '../models/color.model.js';
@@ -182,8 +182,12 @@ const AddImage = async (req, res, next) => {
 const RecomandShoes = async (req, res, next) => {
   const limit = req.query.limit || 9;
   const orderBy = req.query.order || 'createdAt';
+  const shoeId = req.query.id || 0;
   try {
     const recomandedShoe = await Shoe.findAll({
+      where: {id: {
+        [Sequelize.Op.not]: shoeId
+      }},
       attributes: {
         include: [
           [

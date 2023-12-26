@@ -108,6 +108,7 @@ const GetHistoryOrder = async (req, res, next) => {
           ],
         },
       ],
+      order : [["createdAt", "DESC"]]
     });
     res.json(apiRespon.StatusGetData('Succes Get Data', orderHistory));
   } catch (error) {
