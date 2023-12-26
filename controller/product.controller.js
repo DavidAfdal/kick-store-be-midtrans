@@ -9,35 +9,39 @@ import sequelize from '../config/db.config.js';
 
 const PaginationShoes = async (req, res, next) => {
   try {
-    const { page = 1, pageSize = 10, category, name, type, minPrice, maxPrice } = req.query;
-
+    const { page = 1, pageSize = 10, category="", name="", type="",  } = req.query;
+     
+    const minPrice = parseInt(req.query.min) ?  parseInt(req.query.min) : 0
+    const maxPrice = parseInt(req.query.max) ?  parseInt(req.query.max) : 0
     // Membuat objek untuk menyimpan kriteria filter
     const filterCriteria = {};
 
     // Menambahkan kriteria filter berdasarkan parameter yang diberikan
-    if (category) {
-      filterCriteria.category = category;
+    if (category !== "") {
+      filterCriteria.category = category.split(',').map((data) => data.toUpperCase());
     }
 
-    if (name) {
+    if (name !== "") {
       filterCriteria.name = { [Op.iLike]: `%${name}%` };
     }
 
-    if (type) {
-      filterCriteria.type = type;
+    if (type !== "") {
+      filterCriteria.type = type.split(",").map((data) => data.toUpperCase());
     }
 
-    if (minPrice && maxPrice) {
+    if (minPrice < 0 && maxPrice > 0) {
       filterCriteria.price = { [Op.between]: [minPrice, maxPrice] };
-    } else if (minPrice) {
+    } else if (minPrice >= 0 ) {
       filterCriteria.price = { [Op.gte]: minPrice };
-    } else if (maxPrice) {
+    } else if (maxPrice > 0) {
       filterCriteria.price = { [Op.lte]: maxPrice };
     }
 
     // Mendapatkan data sepatu dengan paginasi dan filter
     const offset = (page - 1) * pageSize;
     const limit = parseInt(pageSize, 10);
+    const orderBy = req.query.sort || 'name';
+    const  order = req.query.order || "ASC";
 
     const result = await Shoe.findAndCountAll({
       where: filterCriteria,
@@ -50,9 +54,11 @@ const PaginationShoes = async (req, res, next) => {
             'thumbImg',
           ],
         ],
+        exclude: ['description', 'category', 'type', 'updatedAt'],
       },
       offset,
       limit,
+      order: [[orderBy, order.toUpperCase()]],
     });
 
     res.json({
@@ -104,6 +110,9 @@ const GetShoesById = async (req, res, next) => {
 
   try {
     const shoe = await Shoe.findByPk(id, {
+      attributes: {
+        exclude: ['updatedAt'],
+      },
       include: [
         {
           model: Color,
@@ -118,7 +127,7 @@ const GetShoesById = async (req, res, next) => {
         {
           model: Image,
           as: 'images',
-          attributes: ['url', 'type'],
+          attributes: ['url'],
         },
       ],
     });
@@ -126,6 +135,8 @@ const GetShoesById = async (req, res, next) => {
     if (!shoe) {
       return res.status(404).json({ error: 'Shoe not found' });
     }
+    console.log(shoe);
+    // const response = { ...shoe, images: shoe.images.map((img) => img.url) };
 
     res.json(apiRespon.StatusGetData('succes get details shoe', shoe));
   } catch (error) {
@@ -169,6 +180,8 @@ const AddImage = async (req, res, next) => {
 };
 
 const RecomandShoes = async (req, res, next) => {
+  const limit = req.query.limit || 9;
+  const orderBy = req.query.order || 'createdAt';
   try {
     const recomandedShoe = await Shoe.findAll({
       attributes: {
@@ -181,8 +194,8 @@ const RecomandShoes = async (req, res, next) => {
           ],
         ],
       },
-      limit: 9,
-      order: [['createdAt', 'DESC']],
+      limit: limit,
+      order: [[orderBy, 'DESC']],
     });
 
     res.json(apiRespon.StatusGetData('Succes Get data recomanded', recomandedShoe));

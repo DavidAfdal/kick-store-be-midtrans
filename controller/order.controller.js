@@ -13,7 +13,7 @@ dotenv.config();
 
 const CheckoutProduct = async (req, res, next) => {
   const { userId } = req.user;
-  const { total_price, total_items, card_number, card_exp_month, card_exp_year, card_cvv } = req.body;
+  const { total_price, total_items, card_number, card_exp_month, card_exp_year, card_cvv, address, phone_number } = req.body;
   const orderId = utils.GenerateOrderId();
   let cardParameter = {
     card_number: card_number,
@@ -29,7 +29,7 @@ const CheckoutProduct = async (req, res, next) => {
 
     if (cartItems.length > 0) {
       result = await sequelize.transaction(async () => {
-        const userOrder = await Order.create({ id: orderId, user_id: userId, total_price, total_items });
+        const userOrder = await Order.create({ id: orderId, user_id: userId, total_price, total_items, address, phone_number });
 
         const orderItems = cartItems.map((data) => {
           return {
@@ -42,14 +42,35 @@ const CheckoutProduct = async (req, res, next) => {
           };
         });
 
-        const dataOrder = await OrderItems.bulkCreate(orderItems);
+         await OrderItems.bulkCreate(orderItems);
 
         await Cart.destroy({ where: { user_id: userId } });
 
-        return {
-          order: userOrder,
-          orderItems: dataOrder,
+        const data = await CoreApi.cardToken(cardParameter);
+
+        let parameter = {
+          payment_type: 'credit_card',
+          transaction_details: {
+            gross_amount: total_price,
+            order_id: userOrder.id,
+          },
+          credit_card: {
+            token_id: data.token_id,
+          },
         };
+    
+        const chargeResponse = await CoreApi.charge(parameter);
+    
+        await Payment.create({
+          order_id: userOrder.id,
+          grossAmount: chargeResponse.gross_amount,
+          paymentStatus: chargeResponse.transaction_status,
+          paymentTime: chargeResponse.transaction_time,
+        });
+
+        return res.json(apiRespon.StatusCreated("Transaction Success"))
+
+
       });
     } else {
       return res.json(apiRespon.StatusNotFound("Can't Checkout, your cart is empty", 'cart empty'));
@@ -59,40 +80,6 @@ const CheckoutProduct = async (req, res, next) => {
     return res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 
-  let data;
-  try {
-    data = await CoreApi.cardToken(cardParameter);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json(apiRespon.StatusIntervalServerError(error));
-  }
-
-  try {
-    let parameter = {
-      payment_type: 'credit_card',
-      transaction_details: {
-        gross_amount: total_price,
-        order_id: result.order.id,
-      },
-      credit_card: {
-        token_id: data.token_id,
-      },
-    };
-
-    const chargeResponse = await CoreApi.charge(parameter);
-
-    await Payment.create({
-      order_id: result.order.id,
-      grossAmount: chargeResponse.gross_amount,
-      paymentStatus: chargeResponse.transaction_status,
-      paymentTime: chargeResponse.transaction_time,
-    });
-
-    return res.json(apiRespon.StatusCreated('Checkout Berhasil'));
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json(apiRespon.StatusIntervalServerError(error));
-  }
 };
 
 const GetHistoryOrder = async (req, res, next) => {
@@ -106,7 +93,7 @@ const GetHistoryOrder = async (req, res, next) => {
         {
           model: OrderItems,
           as: 'order_items',
-          include: [
+          include: [ 
             {
               model: Shoe,
               attributes: [
@@ -114,18 +101,11 @@ const GetHistoryOrder = async (req, res, next) => {
                 'category',
                 'type',
                 [
-                  sequelize.literal(`(
-                SELECT url FROM images as image  WHERE image.shoe_id = order_items.shoe_id AND image.type = 'THUMBNAIL'
-            )`),
-                  'thumbImg',
+                  sequelize.literal(`(SELECT url FROM images as image  WHERE image.shoe_id = order_items.shoe_id AND image.type = 'THUMBNAIL')`),'thumbImg',
                 ],
               ],
             },
           ],
-        },
-        {
-          model: Payment,
-          as: 'payment',
         },
       ],
     });

@@ -15,21 +15,65 @@ const AddItemToCart = async (req, res, next) => {
         [Op.and]: [{ shoe_id: shoeId }, { shoe_color: cart_color }, { shoe_size: cart_size }, { user_id: userId }],
       },
     });
-
+    
+    let data;
     if (exitedCartItem) {
-      await Cart.update({ quantity: exitedCartItem.quantity + 1 }, { where: { id: exitedCartItem.id } });
+
+      const cart = await Cart.findOne({ where: { id: exitedCartItem.id },  
+      attributes: { exclude: ['createdAt', 'user_id' , 'updatedAt'] },
+      include: [
+        {
+          model: Shoe,
+          attributes: [
+            'name',
+            'category',
+            'type',
+            [
+              sequelize.literal(`(
+            SELECT url FROM images as image  WHERE image.shoe_id = shoe.id AND image.type = 'THUMBNAIL'
+        )`),
+              'thumbImg',
+            ],
+          ],
+        },
+      ],}, );
+      cart.quantity +=1
+      await cart.save();
+      data = cart
+
     } else {
-      await Cart.create({
+      const newCart = await Cart.create({
         shoe_id: shoeId,
         user_id: userId,
         shoe_color: cart_color,
         shoe_size: cart_size,
         quantity: 1,
-        price,
+        price: parseInt(price)
       });
+
+      
+      data = await Cart.findOne({ where: { id: newCart.id },  
+        attributes: { exclude: ['createdAt', 'user_id' , 'updatedAt'] },
+        include: [
+          {
+            model: Shoe,
+            attributes: [
+              'name',
+              'category',
+              'type',
+              [
+                sequelize.literal(`(
+              SELECT url FROM images as image  WHERE image.shoe_id = shoe.id AND image.type = 'THUMBNAIL'
+          )`),
+                'thumbImg',
+              ],
+            ],
+          },
+        ],}, );
+      
     }
 
-    return res.json(apiRespon.StatusNoContent('Succes Add to Cart'));
+    return res.json(apiRespon.StatusGetData("succes", data));
   } catch (error) {
     console.log(error);
     res.status(500).json(apiRespon.StatusIntervalServerError(error));
@@ -67,19 +111,55 @@ const GetItemsInCart = async (req, res, next) => {
   }
 };
 
-const UpdateItemCart = (req, res, next) => {};
+const IncrementQuantityCart = async(req, res, next) => {
+  const {itemId} = req.params;
+
+  try {
+    const cartItem = await Cart.findByPk(parseInt(itemId));
+    if(!cartItem) {
+      return res.status(404).json(apiRespon.StatusNotFound("Data Not Found"));
+    }
+    cartItem.quantity += 1;
+    await cartItem.save();
+    return res.status(200).json(apiRespon.StatusGetData("Succes", cartItem))
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(apiRespon.StatusIntervalServerError(error))
+  }
+};
+
+const DecrementQuantityCart = async(req, res, next) => {
+  const {itemId} = req.params;
+
+  try {
+    const cartItem = await Cart.findByPk(itemId);
+    if(!cartItem) {
+      return res.status(404).json(apiRespon.StatusNotFound("Data Not Found"));
+    }
+
+    if(cartItem.quantity < 1) {
+      return res.status(400).json(apiRespon.StatusCostumRespon(`can't decrement quantity item`, 400, "bad request"))
+    }
+    cartItem.quantity -= 1;
+    await cartItem.save();
+    return res.status(200).json(apiRespon.StatusGetData("Succes", cartItem))
+  } catch (error) {
+    return res.status(500).json(apiRespon.StatusIntervalServerError(error))
+  }
+};  
 
 const DeleteItemCart = async (req, res, next) => {
   const { cartId } = req.params;
 
+  
   try {
-    await Cart.destroy({ where: { id: cartId } });
+    const findData = await Cart.findByPk(cartId)
+    if(!findData) {
+      return res.status(404).json(apiRespon.StatusNotFound("Data By this cart id not found"))
+    }
+   await Cart.destroy({ where: { id: cartId }});
 
-    res.json({
-      code: 204,
-      status: 'No Content',
-      message: 'Sucess Delete Items In Cart',
-    });
+    res.json(apiRespon.StatusGetData("Succes Delete Data", findData));
   } catch (error) {
     console.log(error);
     res.status(500).json(apiRespon.StatusIntervalServerError(error));
@@ -89,6 +169,7 @@ const DeleteItemCart = async (req, res, next) => {
 export default {
   AddItemToCart,
   GetItemsInCart,
-  UpdateItemCart,
+  DecrementQuantityCart,
+  IncrementQuantityCart,
   DeleteItemCart,
 };

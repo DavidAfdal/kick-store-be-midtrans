@@ -39,6 +39,7 @@ Shoe.hasMany(Size, {
 Size.belongsTo(Shoe, {
   foreignKey: 'shoe_id',
 });
+
 (async () => {
   await sequelize.sync();
   // Code here

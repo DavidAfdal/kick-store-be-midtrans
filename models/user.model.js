@@ -2,13 +2,9 @@ import sequelize from '../config/db.config.js';
 import { DataTypes } from 'sequelize';
 
 const User = sequelize.define('user', {
-  firstName: {
+  name: {
     type: DataTypes.STRING,
-    allowNull: false,
-  },
-  lastName: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    allowNull:false,
   },
   email: {
     type: DataTypes.STRING,
@@ -16,16 +12,20 @@ const User = sequelize.define('user', {
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   gender: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   status: {
     type: DataTypes.STRING,
     defaultValue: 'ROOKIE',
   },
+  googleLogin: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  }
 });
 
 export default User;

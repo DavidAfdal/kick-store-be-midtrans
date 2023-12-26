@@ -7,6 +7,7 @@ const sequelize = new Sequelize({
   username: 'david',
   password: 'gelang123',
   database: 'kick_store',
+  logging: false
 });
 
 export default sequelize;

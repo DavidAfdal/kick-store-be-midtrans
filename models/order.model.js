@@ -18,6 +18,14 @@ const Order = sequelize.define('order', {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  address : {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  phone_number: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
 });
 
 Order.hasMany(OrderItems, {

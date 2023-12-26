@@ -2,7 +2,8 @@ import jwt from 'jsonwebtoken';
 
 const CheckAuthorization = (req, res, next) => {
   try {
-    const token = req.cookies.tokens;
+    const token = req.headers.authorization.split(' ')[1];
+    console.log(req.headers.authorization)
     if (!token) {
       throw new Error('Authenfication failed');
     }
