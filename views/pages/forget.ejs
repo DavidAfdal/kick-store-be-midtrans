@@ -1,0 +1,14 @@
+<%- include("../partials/head.ejs"); %>
+
+<div class="w-full h-[100vh] flex justify-center items-center">
+<div class="w-[400px] p-6 rounded-md bg-white">
+    <form method="post" action="/reset-password/<%=id%>">
+        <h1 class="text-2xl mb-4">Reset your password</h1>
+        <label htmlFor="email" class="text-[12px] font-normal">Enter your new password</label>
+        <input type="text" placeholder="New Password" name="password" class="mt-[4px] w-full border border-solid border-[#232321] rounded-md text-[#79767C] p-4 bg-[#e7e7e3] outline-1 outline-[#232321]"/>
+        <button type="submit" class="w-full mt-6 bg-[#4A69E2] py-2 px-4 text-white rounded-md">Reset Password</button>
+    </form>
+</div>
+</div>
+
+<%- include("../partials/footer"); %>

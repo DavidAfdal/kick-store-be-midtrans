@@ -9,10 +9,11 @@ import sequelize from '../config/db.config.js';
 
 const PaginationShoes = async (req, res, next) => {
   try {
-    const { page = 1, pageSize = 10, category="", name="", type="",  } = req.query;
+    const { page = 1, pageSize = 9, category="", name="", type="",  } = req.query;
      
     const minPrice = parseInt(req.query.min) ?  parseInt(req.query.min) : 0
     const maxPrice = parseInt(req.query.max) ?  parseInt(req.query.max) : 0
+    console.log(maxPrice)
     // Membuat objek untuk menyimpan kriteria filter
     const filterCriteria = {};
 
@@ -29,13 +30,11 @@ const PaginationShoes = async (req, res, next) => {
       filterCriteria.type = type.split(",").map((data) => data.toUpperCase());
     }
 
-    if (minPrice < 0 && maxPrice > 0) {
+    if (minPrice >= 0 && maxPrice !== 0) {
       filterCriteria.price = { [Op.between]: [minPrice, maxPrice] };
     } else if (minPrice >= 0 ) {
       filterCriteria.price = { [Op.gte]: minPrice };
-    } else if (maxPrice > 0) {
-      filterCriteria.price = { [Op.lte]: maxPrice };
-    }
+    } 
 
     // Mendapatkan data sepatu dengan paginasi dan filter
     const offset = (page - 1) * pageSize;

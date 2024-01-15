@@ -10,4 +10,6 @@ const sequelize = new Sequelize({
   logging: false
 });
 
+// const sequelize = new Sequelize("https://leewmwaylxnmtjdhuydq.supabase.co", {})
+
 export default sequelize;

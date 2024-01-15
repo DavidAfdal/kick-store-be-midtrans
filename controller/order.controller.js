@@ -42,7 +42,7 @@ const CheckoutProduct = async (req, res, next) => {
           };
         });
 
-         await OrderItems.bulkCreate(orderItems);
+        await OrderItems.bulkCreate(orderItems);
 
         await Cart.destroy({ where: { user_id: userId } });
 
@@ -84,8 +84,12 @@ const CheckoutProduct = async (req, res, next) => {
 
 const GetHistoryOrder = async (req, res, next) => {
   const { userId } = req.user;
+  const { page = 1, pageSize = 5} = req.query;
+  const offset = (page - 1) * pageSize;
+
+  const limit = parseInt(pageSize,10);
   try {
-    const orderHistory = await Order.findAll({
+    const orderHistory = await Order.findAndCountAll({
       where: {
         user_id: userId,
       },
@@ -108,9 +112,19 @@ const GetHistoryOrder = async (req, res, next) => {
           ],
         },
       ],
-      order : [["createdAt", "DESC"]]
+      offset,
+      limit, 
+      order : [["createdAt", "DESC"]],
+      distinct: true
     });
-    res.json(apiRespon.StatusGetData('Succes Get Data', orderHistory));
+
+    res.json({
+      totalItems: orderHistory.count,
+      totalPages: Math.ceil(orderHistory.count / pageSize),
+      currentPage: page,
+      data: orderHistory.rows,
+    });
+  
   } catch (error) {
     console.log(error);
     return res.status(500).json(apiRespon.StatusIntervalServerError(error));
