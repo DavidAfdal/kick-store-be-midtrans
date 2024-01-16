@@ -1,25 +1,23 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
-import crypto from 'crypto';
+import AES from 'crypto-js/aes';
+import Utf8 from 'crypto-js/enc-utf8';
 
 const HashPassword = (password) => {
   return bcrypt.hash(password, 12);
 };
 
 function encrypt(text, key) {
-  const cipher = crypto.createCipher('aes-256-cbc', key);
-  let encrypted = cipher.update(text, 'utf-8', 'hex');
-  encrypted += cipher.final('hex');
+  const encrypted= AES.encrypt(text, key).toString()
   return encrypted;
 }
 
 // Function to decrypt text
 function decrypt(encryptedText, key) {
-  const decipher = crypto.createDecipher('aes-256-cbc', key);
-  let decrypted = decipher.update(encryptedText, 'hex', 'utf-8');
-  decrypted += decipher.final('utf-8');
-  return decrypted;
+  const bytes = AES.decrypt(encryptedText, key);
+  const originalText = bytes.toString(Utf8);
+  return originalText;
 }
 
 const ComparePassword = (password, hashPassword) => {
