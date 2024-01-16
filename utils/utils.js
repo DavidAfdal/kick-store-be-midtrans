@@ -9,13 +9,14 @@ const HashPassword = (password) => {
 };
 
 function encrypt(text, key) {
-  const encrypted= AES.encrypt(text, key).toString()
+  const encrypted= encodeURIComponent(AES.encrypt(text, key)).toString()
   return encrypted;
 }
 
 // Function to decrypt text
 function decrypt(encryptedText, key) {
-  const bytes = AES.decrypt(encryptedText, key);
+  const decodedText = decodeURIComponent(encryptedText);
+  const bytes = AES.decrypt(decodedText, key);
   const originalText = bytes.toString(Utf8);
   return originalText;
 }
