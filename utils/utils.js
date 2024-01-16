@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
-import AES from 'crypto-js/aes';
-import Utf8 from 'crypto-js/enc-utf8';
+import AES from 'crypto-js/aes.js';
+import Utf8 from 'crypto-js/enc-utf8.js';
 
 const HashPassword = (password) => {
   return bcrypt.hash(password, 12);
