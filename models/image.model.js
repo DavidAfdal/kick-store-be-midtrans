@@ -1,5 +1,5 @@
 import sequelize from '../config/db.config.js';
-import { DataTypes } from 'sequelize';
+import {DataTypes}from 'sequelize';
 import Shoe from './shoe.model.js';
 
 const Image = sequelize.define('image', {

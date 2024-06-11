@@ -1,5 +1,5 @@
 import sequelize from '../config/db.config.js';
-import { DataTypes } from 'sequelize';
+import {DataTypes}from 'sequelize';
 
 const Color = sequelize.define('color', {
   name: {

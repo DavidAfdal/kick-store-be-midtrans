@@ -3,6 +3,7 @@ import productController from '../controller/product.controller.js';
 import colorController from '../controller/color.controller.js';
 import upload from '../config/multer.config.js';
 
+
 const router = express.Router();
 
 router.get('/', productController.PaginationShoes);

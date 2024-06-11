@@ -1,6 +1,6 @@
 import sequelize from '../config/db.config.js';
-import { DataTypes } from 'sequelize';
-import Color from './color.model.js';
+import {DataTypes}from 'sequelize';
+import  Color from './color.model.js' ;
 import Size from './size.model.js';
 
 const Shoe = sequelize.define('shoe', {

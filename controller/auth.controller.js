@@ -124,7 +124,6 @@ const GetProfiles = async (req, res,next) => {
 
   try {
     const response = await User.findOne({where: {id: userId}})
-  
     return res.status(200).json(apiRespon.StatusGetData('Succes', response))
   } catch (error) {
     return res.status(500).json(apiRespon.StatusIntervalServerError(error));

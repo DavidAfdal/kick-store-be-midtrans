@@ -1,4 +1,4 @@
-import midtransClient from 'midtrans-client';
+import midtransClient from  'midtrans-client';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
