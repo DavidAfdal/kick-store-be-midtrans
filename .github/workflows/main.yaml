@@ -51,7 +51,6 @@ jobs:
 
 
             docker pull ${{ secrets.DOCKER_USERNAME }}/kick-store-be:latest
-            docker pull postgres:latest
         
 
             docker run -d \
@@ -63,12 +62,8 @@ jobs:
               -p 5431:5431 \
               postgres:latest
 
-
-
-
             docker run -d \
               --name kick-store-be \
-              --link db-kick-store:db \
               -e CLOUD_NAME=${{ secrets.CLOUD_NAME }} \
               -e CLOUD_API_KEY=${{ secrets.CLOUD_API_KEY }} \
               -e CLOUD_API_SECRET=${{ secrets.CLOUD_API_SECRET }} \
