@@ -86,4 +86,4 @@ jobs:
                     -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
                     -e DB_PORT=${{ secrets.DB_PORT }} \
                     -p 5000:5000 \
-                    davidafdal/kick-store-be:latest
+                    ${{ secrets.DOCKER_USERNAME }}/kick-store-be
