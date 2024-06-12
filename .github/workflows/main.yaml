@@ -49,8 +49,8 @@ jobs:
             docker volume create postgres_data_kick_store || true
 
             echo "Stopping and removing old containers if they exist..."
-            docker stop kick-store-be || true
-            docker rm kick-store-be || true
+            docker stop kick-store-api || true
+            docker rm kick-store-api || true
             docker stop db-kick-store || true
             docker rm db-kick-store || true
 
@@ -69,7 +69,7 @@ jobs:
 
             echo "Starting backend container..."
             docker run -d \
-              --name kick-store-be \
+              --name kick-store-api \
               -e CLOUD_NAME=${{ secrets.CLOUD_NAME }} \
               -e CLOUD_API_KEY=${{ secrets.CLOUD_API_KEY }} \
               -e CLOUD_API_SECRET=${{ secrets.CLOUD_API_SECRET }} \
@@ -86,4 +86,5 @@ jobs:
               -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
               -e DB_PORT=${{ secrets.DB_PORT }} \
               -p 5000:5000 \
-              davidafdal/kick-store-be 
+              ${{ secrets.DOCKER_USERNAME }}/kick-store-be:latest
+          
