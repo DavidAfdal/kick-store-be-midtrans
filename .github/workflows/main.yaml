@@ -55,7 +55,7 @@ jobs:
                   docker rm db-kick-store || true
 
                   echo "Pulling the latest image from Docker Hub..."
-                  docker pull ${{ secrets.DOCKER_USERNAME }}/kick-store-be:latest
+                  docker pull davidafdal/kick-store-be:latest
 
                   echo "Starting PostgreSQL container..."
                   docker run -d \
@@ -86,5 +86,4 @@ jobs:
                     -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
                     -e DB_PORT=${{ secrets.DB_PORT }} \
                     -p 5000:5000 \
-                    ${{ secrets.DOCKER_USERNAME }}/
-                    kick-store-be:latest
+                    davidafdal/kick-store-be:latest
