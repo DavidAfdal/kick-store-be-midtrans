@@ -41,49 +41,49 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-                 set -e # Exit immediately if a command exits with a non-zero status
+            set -e # Exit immediately if a command exits with a non-zero status
 
-                  echo "Current user: $(whoami)"
+            echo "Current user: $(whoami)"
 
-                  echo "Creating Docker volume for PostgreSQL..."
-                  docker volume create postgres_data_kick_store || true
+            echo "Creating Docker volume for PostgreSQL..."
+            docker volume create postgres_data_kick_store || true
 
-                  echo "Stopping and removing old containers if they exist..."
-                  docker stop kick-store-be || true
-                  docker rm kick-store-be || true
-                  docker stop db-kick-store || true
-                  docker rm db-kick-store || true
+            echo "Stopping and removing old containers if they exist..."
+            docker stop kick-store-be || true
+            docker rm kick-store-be || true
+            docker stop db-kick-store || true
+            docker rm db-kick-store || true
 
-                  echo "Pulling the latest image from Docker Hub..."
-                  docker pull davidafdal/kick-store-be:latest
+            echo "Pulling the latest image from Docker Hub..."
+            docker pull davidafdal/kick-store-be:latest
 
-                  echo "Starting PostgreSQL container..."
-                  docker run -d \
-                    --name db-kick-store \
-                    -e POSTGRES_USER=davidafdal \
-                    -e POSTGRES_PASSWORD=gelang234 \
-                    -e POSTGRES_DB=kick-store \
-                    -v postgres_data_kick_store:/var/lib/postgresql/data \
-                    -p 5431:5432 \
-                    postgres
+            echo "Starting PostgreSQL container..."
+            docker run -d \
+              --name db-kick-store \
+              -e POSTGRES_USER=davidafdal \
+              -e POSTGRES_PASSWORD=gelang234 \
+              -e POSTGRES_DB=kick-store \
+              -v postgres_data_kick_store:/var/lib/postgresql/data \
+              -p 5431:5432 \
+              postgres     
 
-                  echo "Starting backend container..."
-                  docker run -d \
-                    --name kick-store-be \
-                    -e CLOUD_NAME=${{ secrets.CLOUD_NAME }} \
-                    -e CLOUD_API_KEY=${{ secrets.CLOUD_API_KEY }} \
-                    -e CLOUD_API_SECRET=${{ secrets.CLOUD_API_SECRET }} \
-                    -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-                    -e MIDTRANS_SERVER_KEY=${{ secrets.MIDTRANS_SERVER_KEY }} \
-                    -e MIDTRANS_CLIENT_KEY=${{ secrets.MIDTRANS_CLIENT_KEY }} \
-                    -e CLIENT_ID=${{ secrets.CLIENT_ID }} \
-                    -e CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} \
-                    -e NODEMAILER_EMAIL=${{ secrets.NODEMAILER_EMAIL }} \
-                    -e NODEMAILER_PASSWORD=${{ secrets.NODEMAILER_PASSWORD }} \
-                    -e DB_HOST=${{ secrets.SERVER }} \
-                    -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
-                    -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-                    -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
-                    -e DB_PORT=${{ secrets.DB_PORT }} \
-                    -p 5000:5000 \
-                    ${{ secrets.DOCKER_USERNAME }}/kick-store-be
+            echo "Starting backend container..."
+            docker run -d \
+              --name kick-store-be \
+              -e CLOUD_NAME=${{ secrets.CLOUD_NAME }} \
+              -e CLOUD_API_KEY=${{ secrets.CLOUD_API_KEY }} \
+              -e CLOUD_API_SECRET=${{ secrets.CLOUD_API_SECRET }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e MIDTRANS_SERVER_KEY=${{ secrets.MIDTRANS_SERVER_KEY }} \
+              -e MIDTRANS_CLIENT_KEY=${{ secrets.MIDTRANS_CLIENT_KEY }} \
+              -e CLIENT_ID=${{ secrets.CLIENT_ID }} \
+              -e CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} \
+              -e NODEMAILER_EMAIL=${{ secrets.NODEMAILER_EMAIL }} \
+              -e NODEMAILER_PASSWORD=${{ secrets.NODEMAILER_PASSWORD }} \
+              -e DB_HOST=${{ secrets.SERVER }} \
+              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
+              -e DB_PORT=${{ secrets.DB_PORT }} \
+              -p 5000:5000 \
+              ${{ secrets.DOCKER_USERNAME }}/kick-store-be 
