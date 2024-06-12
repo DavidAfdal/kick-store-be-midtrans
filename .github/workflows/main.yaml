@@ -60,7 +60,7 @@ jobs:
               -e POSTGRES_DB=kick-store \
               -v postgres_data_kick_store:/var/lib/postgresql/data \
               -p 5431:5431 \
-              postgres:latest
+              postgres
 
             docker run -d \
               --name kick-store-be \
