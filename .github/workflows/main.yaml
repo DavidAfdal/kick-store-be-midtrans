@@ -47,7 +47,7 @@ jobs:
            
 
             docker stop kick-store-be || true && docker rm kick-store-be || true
-            docker stop postgres || true && docker rm postgres || true
+            docker stop db-kick-store || true && docker rm db-kick-store || true
 
 
             docker pull ${{ secrets.DOCKER_USERNAME }}/kick-store-be:latest
