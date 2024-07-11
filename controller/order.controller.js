@@ -22,8 +22,15 @@ const CheckoutProduct = async (req, res, next) => {
     const user = await User.findOne({ where: { id: userId } });
 
     if (cartItems.length > 0) {
+      let grossAmount = 0
+
+
+      cartItems.forEach((data) => {
+        grossAmount += parseInt(data.price * data.quantity)
+      })
+
       result = await sequelize.transaction(async () => {
-        const userOrder = await Order.create({ id: orderId, user_id: userId, total_price, total_items, address, phone_number });
+        const userOrder = await Order.create({ id: orderId, user_id: userId, total_price: grossAmount + parseInt(grossAmount*0.05), total_items, address, phone_number });
 
         const orderItems = cartItems.map((data) => {
           return {
@@ -35,12 +42,7 @@ const CheckoutProduct = async (req, res, next) => {
           };
         });
 
-         let grossAmount = 0
-
-
-        cartItems.forEach((data) => {
-          grossAmount += parseInt(data.price * data.quantity)
-        })
+      
 
         await OrderItems.bulkCreate(orderItems);
 
@@ -50,7 +52,7 @@ const CheckoutProduct = async (req, res, next) => {
         let parameter = {
           transaction_details: {
             order_id: orderId,
-            gross_amount: total_price,
+            gross_amount: grossAmount + parseInt(grossAmount * 0.05),
         },
           credit_card:{
               secure: true
@@ -62,7 +64,7 @@ const CheckoutProduct = async (req, res, next) => {
               phone: phone_number
           },
           callbacks: {
-            finish: `${process.env.FRONTURL}/`
+            finish: `${process.env.FRONT_URL}/`
           },
         };
 
