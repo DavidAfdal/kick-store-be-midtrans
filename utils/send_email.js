@@ -70,7 +70,7 @@ export const TemplateForActiveEmail = (id,gender,name) => {
       <p>Dear ${nama},</p>
       <p>You have requested to activate account. Click the button below to activate it:</p>
       
-      <a class="button" href='http://localhost:5000/active/${id}'>Activate Account</a>
+      <a class="button" href='http://103.157.26.216:5000/active/${id}'>Activate Account</a>
       
       <p>If you did not request a activate account, please ignore this email.</p>
       <p>Thank you!</p>
@@ -131,7 +131,7 @@ export const TemplateForResetEmail = (id) => {
     <p>Dear user,</p>
     <p>You have requested to reset your password. Click the button below to reset it:</p>
     
-    <a class="button" href='http://localhost:5000/forget-password/${id}'>Reset Password</a>
+    <a class="button" href='http://103.157.26.216:5000/forget-password/${id}'>Reset Password</a>
     
     <p>If you did not request a password reset, please ignore this email.</p>
     <p>Thank you!</p>

@@ -174,7 +174,7 @@ const ResetPassword = async (req,res,next) => {
   try {
     let hashPassword = await utils.HashPassword(password);
     await User.update({password: hashPassword}, {where : {id} });
-    res.redirect('http://localhost:5173/login')
+    res.redirect('http://103.157.26.216:3000/login')
   } catch (error) {
     res.redirect(`/forget-password/1?msg="error"`);
   }
@@ -231,7 +231,7 @@ const ActivateAccount = async (req, res) => {
   const id = utils.decrypt(req.params.id,"secret") 
   try {
     await User.update({isActive: true}, {where: {id: id}});
-    res.status(301).redirect("http://localhost:5173/login")
+    res.status(301).redirect("http://103.157.26.216:3000/login")
   } catch (error) {
     console.log(error);
     res.status(500).json(apiRespon.StatusIntervalServerError(error.toString()));
