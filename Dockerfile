@@ -1,17 +1,23 @@
-# Fetching the minified node image on apline linux
-FROM node:20.11.0
+# Menggunakan base image node dengan versi Alpine untuk ukuran yang lebih kecil
+FROM node:20.11.0-alpine
 
-# Setting up the work directory
+# Menetapkan direktori kerja di dalam container
 WORKDIR /express-docker
 
-# Copying all the files in our project
+# Menyalin package.json dan package-lock.json untuk instalasi dependencies
+COPY package*.json ./
+
+# Menginstal dependencies
+RUN npm install --production
+
+# Menyalin semua file proyek ke direktori kerja
 COPY . .
 
-# Installing dependencies
-RUN npm install
+# Menetapkan environment variable NODE_ENV sebagai production
+ENV NODE_ENV=production
 
-# Starting our application
-CMD [ "node", "index.js" ]
-
-# Exposing server port
+# Mengekspos port aplikasi
 EXPOSE 5000
+
+# Menjalankan aplikasi
+CMD ["node", "index.js"]

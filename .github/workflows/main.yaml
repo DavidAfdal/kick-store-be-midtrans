@@ -1,0 +1,72 @@
+name: CI
+on:
+  push:
+    branches: ["stagging"]
+
+jobs:
+  build:
+    environment: deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Connect to Dockerhub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/kick-store-be:latest
+
+  deployment:
+    needs: build
+    environment: deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to vps
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            set -e # Exit immediately if a command exits with a non-zero status
+
+            echo "Current user: $(whoami)"
+
+            echo "Creating Docker volume for PostgreSQL..."
+            docker volume create postgres_data_kick_store || true
+            
+            echo "Stopping and removing old containers if they exist..."
+            docker stop kick-store-api || true
+            docker rm kick-store-api || true
+            docker stop db-kick-store || true
+            docker rm db-kick-store || true
+
+            echo "Pulling the latest image from Docker Hub..."
+            docker pull davidafdal/kick-store-be:latest
+
+            echo "Starting PostgreSQL container..."
+            docker run -d \
+              --name db-kick-store \
+              -e POSTGRES_USER=davidafdal \
+              -e POSTGRES_PASSWORD=gelang234 \
+              -e POSTGRES_DB=kick-store \
+              -v postgres_data_kick_store:/var/lib/postgresql/data \
+              -p 5431:5432 \
+              postgres     
+
+            echo "Starting backend container..."
+            docker run -d --name kick-store-api -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/kick-store-be:latest
+          
