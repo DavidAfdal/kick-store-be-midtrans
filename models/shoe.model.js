@@ -12,7 +12,7 @@ const Shoe = sequelize.define('shoe', {
     allowNull: false,
   },
   price: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   diskon: {

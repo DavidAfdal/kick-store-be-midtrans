@@ -39,7 +39,7 @@ const CheckoutProduct = async (req, res, next) => {
 
 
         cartItems.forEach((data) => {
-          grossAmount += data.price * data.quantity
+          grossAmount += parseInt(data.price * data.quantity)
         })
 
         await OrderItems.bulkCreate(orderItems);
