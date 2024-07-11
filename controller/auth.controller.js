@@ -174,7 +174,7 @@ const ResetPassword = async (req,res,next) => {
   try {
     let hashPassword = await utils.HashPassword(password);
     await User.update({password: hashPassword}, {where : {id} });
-    res.redirect(`${proccess.env.FRONT_URL}/login`)
+    res.redirect(`${ process.env.FRONT_URL}/login`)
   } catch (error) {
     res.redirect(`/forget-password/1?msg="error"`);
   }
@@ -231,7 +231,7 @@ const ActivateAccount = async (req, res) => {
   const id = utils.decrypt(req.params.id,"secret") 
   try {
     await User.update({isActive: true}, {where: {id: id}});
-    res.status(301).redirect(`${proccess.env.FRONT_URL}/login`)
+    res.status(301).redirect(`${process.env.FRONT_URL}/login`)
   } catch (error) {
     console.log(error);
     res.status(500).json(apiRespon.StatusIntervalServerError(error.toString()));

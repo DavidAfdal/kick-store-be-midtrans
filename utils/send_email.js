@@ -15,6 +15,7 @@ export const SuccesSendEmail = "Succes Send Email";
 
 export const TemplateForActiveEmail = (id,gender,name) => {
   let nama ="";
+  const url = process.env.BACKEND_URL;
   if(gender.toUpperCase() === "MALE") {
      nama = "Mr " + name;
   } else {
@@ -70,7 +71,7 @@ export const TemplateForActiveEmail = (id,gender,name) => {
       <p>Dear ${nama},</p>
       <p>You have requested to activate account. Click the button below to activate it:</p>
       
-      <a class="button" href='${process.env.BACKEND_URL}/active/${id}'>Activate Account</a>
+      <a class="button" href='${url}/active/${id}'>Activate Account</a>
       
       <p>If you did not request a activate account, please ignore this email.</p>
       <p>Thank you!</p>
@@ -81,6 +82,7 @@ export const TemplateForActiveEmail = (id,gender,name) => {
 };
 
 export const TemplateForResetEmail = (id) => {
+  const url = process.env.BACKEND_URL;
     return  `
 <!DOCTYPE html>
 <html lang="en">
@@ -131,7 +133,7 @@ export const TemplateForResetEmail = (id) => {
     <p>Dear user,</p>
     <p>You have requested to reset your password. Click the button below to reset it:</p>
     
-    <a class="button" href='${process.env.BACKEND_URL}/forget-password/${id}'>Reset Password</a>
+    <a class="button" href='${url}/forget-password/${id}'>Reset Password</a>
     
     <p>If you did not request a password reset, please ignore this email.</p>
     <p>Thank you!</p>
@@ -142,7 +144,7 @@ export const TemplateForResetEmail = (id) => {
 
 export const SendEmail = (to, subject, message) => {
     let mailDetails = {
-        from: 'devidafd07@gmail.com',
+        from: 'kickstore@gmail.com',
         to: to,
         subject: subject,
         html: message,
