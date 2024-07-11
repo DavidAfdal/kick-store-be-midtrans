@@ -4,7 +4,7 @@ import Order from './order.model.js';
 
 const Transaction = sequelize.define('payment', {
   grossAmount: {
-    type: DataTypes.FLOAT,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
   paymentStatus: {

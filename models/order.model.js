@@ -11,7 +11,7 @@ const Order = sequelize.define('order', {
     unique: true,
   },
   total_price: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
   },
   total_items: {
