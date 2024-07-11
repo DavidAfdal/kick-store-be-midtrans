@@ -154,9 +154,12 @@ const UpdateShoe = async (req, res, next) => {
 
       await Shoe.update({ name: name.toUpperCase(), description: desc, category: category.toUpperCase(), type: type.toUpperCase(), price, diskon: discount }, { where: { id } });
     });
-    res.json(apiRespon.StatusUpdated('Succes Updated Shoe'));
-  } catch {
-    res.status(500).json(apiRespon.StatusIntervalServerError(error));
+    res.status(200).json({
+      message: "Success Update Shoe"
+    });
+  } catch(error) {
+    console.log(error);
+    res.status(500).json(apiRespon.StatusIntervalServerError(error, "Error"));
   }
 };
 
@@ -275,8 +278,8 @@ const AddSize = async (req, res) => {
   const { size, stock } = req.body;
 
   try {
-    await Size.create({ size, stock, shoe_id: id });
-    res.status(201).json(apiRespon.StatusCreated('Succes Add Size'));
+    const data= await Size.create({ size, stock, shoe_id: id });
+    res.status(201).json(apiRespon.StatusGetData('Succes Add Size', data));
   } catch (error) {
     res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
