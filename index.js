@@ -3,6 +3,7 @@ import Productroutes from './routes/Products.routes.js';
 import AuthRoutes from './routes/auth.routes.js';
 import CartRoutes from './routes/cart.routes.js';
 import OrderRoutes from './routes/orders.routes.js';
+import DashboardRoutes from './routes/dashboard.routes.js';
 import * as dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -26,9 +27,11 @@ app.use('/api/shoe', Productroutes);
 app.use('/api/auth', AuthRoutes);
 app.use('/api/cart', CartRoutes);
 app.use('/api/order', OrderRoutes);
+app.use('/api/dashboard', DashboardRoutes);
 app.use((err, req, res, next) => {
+  console.log(err.code);
   res.status(err.code).json({
-    code: err.code,
+    code: err.code ? err.code : 500,
     status: 'Error',
     message: err.message,
     error: err.message,

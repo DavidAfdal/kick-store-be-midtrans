@@ -2,7 +2,7 @@ import sequelize from '../config/db.config.js';
 import {DataTypes}from 'sequelize';
 import Order from './order.model.js';
 
-const Payment = sequelize.define('payment', {
+const Transaction = sequelize.define('payment', {
   grossAmount: {
     type: DataTypes.FLOAT,
     allowNull: false,
@@ -11,20 +11,20 @@ const Payment = sequelize.define('payment', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  paymentTime: {
-    type: DataTypes.DATE,
+  paymentUrl: {
+    type: DataTypes.STRING,
     allowNull: true,
   },
 });
 
-Order.hasOne(Payment, {
+Order.hasOne(Transaction, {
   as: 'payment',
   foreignKey: 'order_id',
   onDelete: 'cascade',
 });
 
-Payment.belongsTo(Order, {
+Transaction.belongsTo(Order, {
   foreignKey: 'order_id',
 });
 
-export default Payment;
+export default Transaction;

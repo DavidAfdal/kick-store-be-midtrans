@@ -3,9 +3,6 @@ import {DataTypes}from 'sequelize';
 import Shoe from './shoe.model.js';
 
 const OrderItems = sequelize.define('orderItems', {
-  shoe_color: {
-    type: DataTypes.STRING,
-  },
   shoe_size: {
     type: DataTypes.STRING,
   },

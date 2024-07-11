@@ -49,9 +49,11 @@ const Register = async (req, res, next) => {
 
 const Login = async (req, res, next) => {
   const { email, password } = req.body;
+  console.log(email, password)
 
   try {
     const userLogin = await User.findOne({ where: { email: email } });
+    console.log(userLogin)
     if (!userLogin) {
       return res.status(404).json(apiRespon.StatusNotFound('This email doesn\`t exit', "Can't find user"));
     }
@@ -69,13 +71,17 @@ const Login = async (req, res, next) => {
     const isValidPassword = await utils.ComparePassword(password, userLogin.password);
 
     if (!isValidPassword) {
+      console.log("test")
       return res.status(400).json(apiRespon.StatusCostumRespon('Please check your email or password', 400, 'Bad Request'));
     }
 
     const token = utils.GenerateAccessToken({ id: userLogin.id, email: userLogin.email });
 
     
-    res.json(apiRespon.StatusGetData("sucees", token));
+    res.json(apiRespon.StatusGetData("sucees", {
+      token,
+      role: userLogin.dataValues.role,
+    }));
   } catch (error) {
     console.log(error);
     res.status(500).json(apiRespon.StatusIntervalServerError(error));
@@ -103,7 +109,10 @@ const LoginWithGoogle = async (req, res, next) => {
 
     if(exitedUser) {
       const token = utils.GenerateAccessToken({ id: exitedUser.id, email: exitedUser.email });
-      return res.json(apiRespon.StatusGetData("sucees", token));
+      return res.json(apiRespon.StatusGetData("sucees", {
+        token,
+        role: exitedUser.dataValues.role,
+      }));
     } else {
       const response = await User.create({
         name: userResponse.data.name,
@@ -112,7 +121,10 @@ const LoginWithGoogle = async (req, res, next) => {
         isActive: true,
       })
       const token = utils.GenerateAccessToken({ id: response.id, email: response.email });
-      return res.json(apiRespon.StatusGetData("sucees", token));
+      return res.json(apiRespon.StatusGetData("sucees", {
+        token,
+        role: response.dataValues.role,
+      }));
     }
   } catch (error) {
     return res.status(500).json(apiRespon.StatusIntervalServerError(error));

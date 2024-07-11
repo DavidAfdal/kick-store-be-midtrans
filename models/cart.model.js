@@ -4,9 +4,6 @@ import User from './user.model.js';
 import Shoe from './shoe.model.js';
 
 const Cart = sequelize.define('cart', {
-  shoe_color: {
-    type: DataTypes.STRING,
-  },
   shoe_size: {
     type: DataTypes.STRING,
   },

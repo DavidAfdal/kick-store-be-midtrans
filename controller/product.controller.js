@@ -1,7 +1,6 @@
-import { Op, Sequelize } from 'sequelize';
+import { Op, Sequelize, where } from 'sequelize';
 import Shoe from '../models/shoe.model.js';
 import Size from '../models/size.model.js';
-import Color from '../models/color.model.js';
 import cloudinary from '../config/cloudinary.config.js';
 import Image from '../models/image.model.js';
 import apiRespon from '../utils/apiRespon.js';
@@ -73,36 +72,104 @@ const PaginationShoes = async (req, res, next) => {
 };
 
 const CreateShoe = async (req, res, next) => {
-  const { name, desc, price, discount, category, type, sizes, colors } = req.body;
+  const { name, desc, price, discount, category, type, sizes} = req.body;
+  const thumbnail = req.files['thumbnail'][0];
+  const images = req.files['images'];
+
+
+  console.log(name, desc, price, discount, category, type, sizes, thumbnail, images)
+
   try {
     await sequelize.transaction(async () => {
       const newShoe = await Shoe.create({ name: name.toUpperCase(), description: desc, category: category.toUpperCase(), type: type.toUpperCase(), price, diskon: discount });
 
-      for (const data of sizes) {
-        const { size, stock } = data;
+      for (const data of JSON.parse(sizes)) {
+        const { size, quantity } = data;
 
         await Size.create({
           size,
-          stock,
+          stock: quantity,
           shoe_id: newShoe.id,
         });
       }
 
-      const colorArray = await Color.findAll({ where: { id: colors } });
+      const resultThumbnail = await cloudinary.uploader.upload(thumbnail.path);
+      await Image.create({
+        id: resultThumbnail.public_id,
+        url: resultThumbnail.url,
+        type: 'THUMBNAIL',
+        shoe_id: newShoe.id,
+      });
+  
+      images.forEach(async (image) => {
+        const resultImage = await cloudinary.uploader.upload(image.path);
+        await Image.create({
+          id: resultImage.public_id,
+          url: resultImage.url,
+          shoe_id: newShoe.id,
+        });
+      });
 
-      await newShoe.addColor(colorArray);
     });
 
-    res.json(apiRespon.StatusCreated('Succes Created Shoe'));
+    res.status(201).json(apiRespon.StatusCreated('Succes Created Shoe'));
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json(apiRespon.StatusIntervalServerError('Something wrong in server', error));
   }
 };
 
-const UpdateShoe = async (req, res, next) => {};
+const UpdateShoe = async (req, res, next) => {
+  const { id } = req.params;
+  const { name, desc, price, discount, category, type} = req.body;
 
-const DeleteShoe = async (req, res, next) => {};
+  const thumbnail = req.files['thumbnail'] ? req.files['thumbnail'][0] : null;
+  const images = req.files['images'] ? req.files['images']: null;
+
+
+  try {
+    await sequelize.transaction(async () => {
+      if(thumbnail) {
+        const resultThumbnail = await cloudinary.uploader.upload(thumbnail.path);
+        await Image.update({
+          id: resultThumbnail.public_id,
+          url: resultThumbnail.url,
+          type: 'THUMBNAIL',
+          shoe_id: id,
+        }, 
+        {where: { shoe_id: id, type: 'THUMBNAIL' }});
+      }
+  
+      if (images) {
+        await Image.destroy({ where: { shoe_id: id, type: "DEFAULT" } });
+        images.forEach(async (image) => {
+          const resultImage = await cloudinary.uploader.upload(image.path);
+          await Image.create({
+            id: resultImage.public_id,
+            url: resultImage.url,
+            shoe_id: newShoe.id,
+          });
+        });
+      }
+
+      await Shoe.update({ name: name.toUpperCase(), description: desc, category: category.toUpperCase(), type: type.toUpperCase(), price, diskon: discount }, { where: { id } });
+    });
+    res.json(apiRespon.StatusUpdated('Succes Updated Shoe'));
+  } catch {
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
+  }
+};
+
+const DeleteShoe = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    await Shoe.destroy({ where: { id } });
+    res.json(apiRespon.StatusGetData('Succes Deleted Shoe', "data"));
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
+  }
+};
 
 const GetShoesById = async (req, res, next) => {
   const { id } = req.params;
@@ -113,11 +180,6 @@ const GetShoesById = async (req, res, next) => {
         exclude: ['updatedAt'],
       },
       include: [
-        {
-          model: Color,
-          attributes: ['id', 'name', 'color'],
-          through: { attributes: [] }, // Exclude the join table attributes
-        },
         {
           model: Size,
           as: 'sizes',
@@ -207,6 +269,31 @@ const RecomandShoes = async (req, res, next) => {
   }
 };
 
+
+const AddSize = async (req, res) => {
+  const { id } = req.params;
+  const { size, stock } = req.body;
+
+  try {
+    await Size.create({ size, stock, shoe_id: id });
+    res.status(201).json(apiRespon.StatusCreated('Succes Add Size'));
+  } catch (error) {
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
+  }
+}
+
+
+const DeleteSize = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await Size.destroy({ where: { id } });
+    res.json(apiRespon.StatusGetData('Succes Deleted Size', "data"));
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json(apiRespon.StatusIntervalServerError(error));
+  }
+}
+
 export default {
   PaginationShoes,
   CreateShoe,
@@ -215,4 +302,6 @@ export default {
   GetShoesById,
   AddImage,
   RecomandShoes,
+  AddSize,
+  DeleteSize
 };

@@ -7,12 +7,12 @@ import sequelize from '../config/db.config.js';
 
 const AddItemToCart = async (req, res, next) => {
   const { userId } = req.user;
-  const { shoeId, cart_color, cart_size, price } = req.body;
+  const { shoeId, cart_size, price } = req.body;
 
   try {
     const exitedCartItem = await Cart.findOne({
       where: {
-        [Op.and]: [{ shoe_id: shoeId }, { shoe_color: cart_color }, { shoe_size: cart_size }, { user_id: userId }],
+        [Op.and]: [{ shoe_id: shoeId }, { shoe_size: cart_size }, { user_id: userId }],
       },
     });
     
@@ -45,7 +45,6 @@ const AddItemToCart = async (req, res, next) => {
       const newCart = await Cart.create({
         shoe_id: shoeId,
         user_id: userId,
-        shoe_color: cart_color,
         shoe_size: cart_size,
         quantity: 1,
         price: parseInt(price)

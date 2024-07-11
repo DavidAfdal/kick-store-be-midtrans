@@ -1,6 +1,5 @@
 import sequelize from '../config/db.config.js';
 import {DataTypes}from 'sequelize';
-import  Color from './color.model.js' ;
 import Size from './size.model.js';
 
 const Shoe = sequelize.define('shoe', {
@@ -30,12 +29,12 @@ const Shoe = sequelize.define('shoe', {
   },
 });
 
-Shoe.belongsToMany(Color, { through: 'shoe_color' });
 Shoe.hasMany(Size, {
   as: 'sizes',
   foreignKey: 'shoe_id',
   onDelete: 'cascade',
 });
+
 Size.belongsTo(Shoe, {
   foreignKey: 'shoe_id',
 });
