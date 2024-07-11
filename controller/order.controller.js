@@ -241,10 +241,209 @@ const GetOrders = async (req, res, next) => {
   }
 };
 
+
+const Webhook = async(req, res, next) => {
+  const {order_id, transaction_status, fraud_status} = req.body;
+
+  let orderId = order_id;
+  let transactionStatus = transaction_status;
+  let fraudStatus = fraud_status;
+  if (transactionStatus == 'capture'){
+    // capture only applies to card transaction, which you need to check for the fraudStatus
+    if (fraudStatus == 'challenge'){
+     
+      await Transaction.update({
+        paymentStatus: 'Deny',
+      }, {
+        where: {
+          order_id: orderId
+        }
+      });
+
+      res.status(200).json({
+        "fraud_status": "challenge",
+        "order_id": orderId
+      })
+     
+    } else if (fraudStatus == 'accept'){
+      try {
+        const result = await sequelize.transaction(async (t) => {
+          // Update the transaction status
+          const transaction = await Transaction.update({
+            paymentStatus: 'Success',
+          }, {
+            where: {
+              order_id: orderId
+            },
+            transaction: t
+          });
+    
+          // Fetch order items with shoe details
+          const getOrderData = await OrderItems.findAll({
+            where: {
+              order_id: orderId
+            },
+            include: [
+              {
+                model: Shoe,
+                attributes: [
+                  'id',
+                  'name',
+                  'category',
+                  'type',
+                  [
+                    sequelize.literal(`(SELECT url FROM images as image WHERE image.shoe_id = order_items.shoe_id AND image.type = 'THUMBNAIL')`),
+                    'thumbImg',
+                  ],
+                ],
+              },
+            ],
+            transaction: t
+          });
+    
+          // Decrement the quantity in Size model
+          for (const orderItem of getOrderData) {
+            const shoeId = orderItem.shoe_id;
+            const shoeSize = orderItem.shoe_size;
+            const quantityToDecrement = orderItem.quantity;
+    
+            await Size.update({
+              stock: sequelize.literal(`stock - ${quantityToDecrement}`)
+            }, {
+              where: {
+                shoe_id: shoeId,
+                size: shoeSize
+              },
+              transaction: t
+            });
+          }
+        });
+    
+
+        console.log('Transaction completed successfully:', result);
+      res.status(200).json({
+          "fraud_status": "challenge",
+          "order_id": orderId
+        })
+      } catch (error) {
+        res.status(200).json({
+          "fraud_status": "challenge",
+          "order_id": orderId
+        })
+      }
+    }
+} else if (transactionStatus == 'settlement'){
+  try {
+    const result = await sequelize.transaction(async (t) => {
+      // Update the transaction status
+      const transaction = await Transaction.update({
+        paymentStatus: 'Success',
+      }, {
+        where: {
+          order_id: orderId
+        },
+        transaction: t
+      });
+
+      // Fetch order items with shoe details
+      const getOrderData = await OrderItems.findAll({
+        where: {
+          order_id: orderId
+        },
+        include: [
+          {
+            model: Shoe,
+            attributes: [
+              'id',
+              'name',
+              'category',
+              'type',
+              [
+                sequelize.literal(`(SELECT url FROM images as image WHERE image.shoe_id = order_items.shoe_id AND image.type = 'THUMBNAIL')`),
+                'thumbImg',
+              ],
+            ],
+          },
+        ],
+        transaction: t
+      });
+
+      // Decrement the quantity in Size model
+      for (const orderItem of getOrderData) {
+        const shoeId = orderItem.shoe_id;
+        const shoeSize = orderItem.shoe_size;
+        const quantityToDecrement = orderItem.quantity;
+
+        await Size.update({
+          stock: sequelize.literal(`stock - ${quantityToDecrement}`)
+        }, {
+          where: {
+            shoe_id: shoeId,
+            size: shoeSize
+          },
+          transaction: t
+        });
+      }
+    });
+    res.status(200).json({
+      "fraud_status": "challenge",
+      "order_id": orderId
+    })
+  } catch (error) {
+
+    console.log(error);
+    res.status(200).json({
+      "fraud_status": "challenge",
+      "order_id": orderId
+    })
+  }
+} else if (transactionStatus == 'deny'){
+  await Transaction.update({
+    paymentStatus: 'Deny',
+  }, {
+    where: {
+      order_id: orderId
+    }
+  });
+
+  res.status(200).json({
+    "fraud_status": "challenge",
+    "order_id": orderId
+  })
+} else if (transactionStatus == 'cancel' ||
+  transactionStatus == 'expire'){
+    await Transaction.update({
+      paymentStatus: 'Deny',
+    }, {
+      where: {
+        order_id: orderId
+      }
+    });
+
+    res.status(200).json({
+      "fraud_status": "challenge",
+      "order_id": orderId
+    })
+} else if (transactionStatus == 'pending'){
+  await Transaction.update({
+    paymentStatus: 'Pending',
+  }, {
+    where: {
+      order_id: orderId
+    }
+  });
+
+  res.status(200).json({
+    "fraud_status": "challenge",
+    "order_id": orderId
+  })
+}
+}
+
 export default {
   CheckoutProduct,
   GetHistoryOrder,
   GetOrders,
-  OrderDetails
-
+  OrderDetails,
+  Webhook
 };

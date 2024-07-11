@@ -8,5 +8,6 @@ routes.get('/orders', orderController.GetOrders);
 routes.post('/checkout', middleware.CheckAuthorization, orderController.CheckoutProduct);
 routes.get('/history', middleware.CheckAuthorization, orderController.GetHistoryOrder);
 routes.get('/orders/:orderId', orderController.OrderDetails);
+routes.post('/webhook', orderController.Webhook);
 
 export default routes;
