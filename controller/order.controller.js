@@ -5,6 +5,7 @@ import Order from '../models/order.model.js';
 import OrderItems from '../models/orderItems.model.js';
 import Transaction from '../models/payment.model.js';
 import Shoe from '../models/shoe.model.js';
+import Size from '../models/size.model.js';
 import User from '../models/user.model.js';
 import apiRespon from '../utils/apiRespon.js';
 import utils from '../utils/utils.js';
@@ -291,10 +292,6 @@ const Webhook = async(req, res, next) => {
                   'name',
                   'category',
                   'type',
-                  [
-                    sequelize.literal(`(SELECT url FROM images as image WHERE image.shoe_id = order_items.shoe_id AND image.type = 'THUMBNAIL')`),
-                    'thumbImg',
-                  ],
                 ],
               },
             ],
@@ -318,9 +315,7 @@ const Webhook = async(req, res, next) => {
             });
           }
         });
-    
 
-        console.log('Transaction completed successfully:', result);
       res.status(200).json({
           "fraud_status": "challenge",
           "order_id": orderId
@@ -358,10 +353,6 @@ const Webhook = async(req, res, next) => {
               'name',
               'category',
               'type',
-              [
-                sequelize.literal(`(SELECT url FROM images as image WHERE image.shoe_id = order_items.shoe_id AND image.type = 'THUMBNAIL')`),
-                'thumbImg',
-              ],
             ],
           },
         ],
