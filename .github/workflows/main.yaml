@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: ["stagging"]
+    branches: ["master"]
 
 jobs:
   build:
