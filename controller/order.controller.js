@@ -160,7 +160,7 @@ const OrderDetails = async (req, res) => {
         id: orderId,
       }
     }, {
-    include: [
+    include:[
       {
         model: OrderItems,
         as: 'order_items',
@@ -183,6 +183,7 @@ const OrderDetails = async (req, res) => {
         as: 'payment'
       }
     ],
+    distinct: true
   })
 
   console.log(orderDetail)
