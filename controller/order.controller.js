@@ -158,33 +158,33 @@ const OrderDetails = async (req, res) => {
     {
       where: {
         id: orderId,
-      }
-    }, {
-    include:[
-      {
-        model: OrderItems,
-        as: 'order_items',
-        include: [ 
+      },
+      
+        include:[
           {
-            model: Shoe,
-            attributes: [
-              'name',
-              'category',
-              'type',
-              [
-                sequelize.literal(`(SELECT url FROM images as image  WHERE image.shoe_id = order_items.shoe_id AND image.type = 'THUMBNAIL')`),'thumbImg',
-              ],
+            model: OrderItems,
+            as: 'order_items',
+            include: [ 
+              {
+                model: Shoe,
+                attributes: [
+                  'name',
+                  'category',
+                  'type',
+                  [
+                    sequelize.literal(`(SELECT url FROM images as image  WHERE image.shoe_id = order_items.shoe_id AND image.type = 'THUMBNAIL')`),'thumbImg',
+                  ],
+                ],
+              },
             ],
           },
+          {
+            model: Transaction,
+            as: 'payment'
+          }
         ],
-      },
-      {
-        model: Transaction,
-        as: 'payment'
-      }
-    ],
-    distinct: true
-  })
+      
+    })
 
   console.log(orderDetail)
   res.json(orderDetail);
