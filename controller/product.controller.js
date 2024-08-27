@@ -70,7 +70,6 @@ const PaginationShoes = async (req, res, next) => {
     res.status(500).send(apiRespon.StatusIntervalServerError(error));
   }
 };
-
 const CreateShoe = async (req, res, next) => {
   const { name, desc, price, discount, category, type, sizes} = req.body;
   const thumbnail = req.files['thumbnail'][0];
