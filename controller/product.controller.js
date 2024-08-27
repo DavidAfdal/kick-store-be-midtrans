@@ -78,19 +78,22 @@ const CreateShoe = async (req, res, next) => {
 
 
   console.log(name, desc, price, discount, category, type, sizes, thumbnail, images)
+  
 
   try {
     await sequelize.transaction(async () => {
       const newShoe = await Shoe.create({ name: name.toUpperCase(), description: desc, category: category.toUpperCase(), type: type.toUpperCase(), price, diskon: discount });
 
-      for (const data of JSON.parse(sizes)) {
-        const { size, quantity } = data;
-
-        await Size.create({
-          size,
-          stock: quantity,
-          shoe_id: newShoe.id,
-        });
+      if (sizes) {
+        for (const data of JSON.parse(sizes)) {
+          const { size, quantity } = data;
+  
+          await Size.create({
+            size,
+            stock: quantity,
+            shoe_id: newShoe.id,
+          });
+        }
       }
 
       const resultThumbnail = await cloudinary.uploader.upload(thumbnail.path);
