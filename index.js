@@ -22,7 +22,10 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser());
-app.use(cors({  allowedHeaders: 'Content-Type, Authorization', credentials: true,}));
+app.use(cors({
+  origin: "*",  
+  allowedHeaders: 'Content-Type, Authorization', 
+  credentials: true,}));
 app.options('*', cors());
 app.use('/api/shoe', Productroutes);
 app.use('/api/auth', AuthRoutes);
