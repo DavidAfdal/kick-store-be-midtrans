@@ -27,7 +27,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', "PATCH", 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.options('*', cors());
 app.use('/api/shoe', Productroutes);
 app.use('/api/auth', AuthRoutes);
 app.use('/api/cart', CartRoutes);
