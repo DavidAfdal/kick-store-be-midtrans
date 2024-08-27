@@ -1,9 +1,7 @@
 import User from '../models/user.model.js';
 import apiRespon from '../utils/apiRespon.js';
 import utils from '../utils/utils.js';
-import  {
-  OAuth2Client,
-} from "google-auth-library"
+import  {OAuth2Client} from "google-auth-library"
 import axios from 'axios';
 import HttpError from '../utils/httpError.js';
 import { SendEmail, TemplateForActiveEmail, TemplateForResetEmail } from '../utils/send_email.js';
@@ -49,7 +47,7 @@ const Register = async (req, res, next) => {
 
 const Login = async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(email, password)
+  // console.log(email, password)
 
   try {
     const userLogin = await User.findOne({ where: { email: email } });
@@ -87,8 +85,6 @@ const Login = async (req, res, next) => {
     res.status(500).json(apiRespon.StatusIntervalServerError(error));
   }
 };
-
-
 
 const LoginWithGoogle = async (req, res, next) => {
   const {code} = req.body;
