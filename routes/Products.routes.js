@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', productController.PaginationShoes);
 router.get('/recomand', productController.RecomandShoes);
 router.get('/:id', productController.GetShoesById);
-router.post('/',  upload.fields([
+router.post('/create',  upload.fields([
   {
     name: 'thumbnail',
     maxCount: 1,
