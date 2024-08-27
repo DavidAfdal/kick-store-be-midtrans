@@ -23,9 +23,10 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser());
 app.use(cors({
-  origin: "*",  
-  allowedHeaders: 'Content-Type, Authorization', 
-  credentials: true,}));
+  origin: 'https://www.kicksstore.site',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.options('*', cors());
 app.use('/api/shoe', Productroutes);
 app.use('/api/auth', AuthRoutes);
