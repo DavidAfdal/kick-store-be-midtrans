@@ -54,14 +54,14 @@ jobs:
             docker rm db-kick-store || true
 
             echo "Pulling the latest image from Docker Hub..."
-            docker pull davidafdal/kick-store-be:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/kick-store-be:latest
 
             echo "Starting PostgreSQL container..."
             docker run -d \
               --name db-kick-store \
-              -e POSTGRES_USER=davidafdal \
-              -e POSTGRES_PASSWORD=gelang234 \
-              -e POSTGRES_DB=kick-store \
+              -e POSTGRES_USER={{ secrets.DATABASE_USER }} \
+              -e POSTGRES_PASSWORD={{ secrets.DATABASE_PASSWORD }} \
+              -e POSTGRES_DB={{ secrets.DATABASE_DBNAME }} \
               -v postgres_data_kick_store:/var/lib/postgresql/data \
               -p 5431:5432 \
               postgres     
