@@ -5,8 +5,8 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_DB: kick_store
-      POSTGRES_USER: david
-      POSTGRES_PASSWORD: gelang123
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
     ports:
       - '5432:5432'
     volumes:
