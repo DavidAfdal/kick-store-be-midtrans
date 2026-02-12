@@ -1,18 +1,31 @@
-FROM node:20.11.0-alpine
+# =========================
+# Stage 1 — Dependencies
+# =========================
+FROM node:20.11.0-alpine AS deps
 
-
-WORKDIR /express-docker
+WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --production
+# Install hanya production dependencies
+RUN npm ci --omit=dev
 
 
-COPY . .
+# =========================
+# Stage 2 — Production
+# =========================
+FROM node:20.11.0-alpine AS production
 
+WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Copy node_modules dari stage deps
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy source code
+COPY . .
+
 EXPOSE 5000
 
-CMD ["node", "index.js"] 
+CMD ["node", "index.js"]

@@ -1,16 +1,66 @@
-version: '3'
+version: '3.8'
 
 services:
   postgres:
     image: postgres:latest
+    container_name: kick_postgres
     environment:
       POSTGRES_DB: kick_store
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
+      POSTGRES_USER: david
+      POSTGRES_PASSWORD: gelang123
     ports:
-      - '5432:5432'
+      - "5431:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - kick_store_data:/var/lib/postgresql
+    networks:
+      - kick-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: kick_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - kick-network
+
+  redis:
+    image: redis:latest
+    container_name: kick_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - kick-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: kick_rabbitmq
+    ports:
+      - "5672:5672"     # untuk aplikasi
+      - "15672:15672"   # rabbitmq management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: david
+      RABBITMQ_DEFAULT_PASS: gelang123
+    volumes:
+      - rabbit_data:/var/lib/rabbitmq
+    networks:
+      - kick-network
 
 volumes:
-  postgres_data:
+  kick_store_data:
+  pgadmin_data:
+  redis_data:
+  rabbit_data:
+
+networks:
+  kick-network:
+    driver: bridge
